@@ -1,3 +1,3 @@
 # lego-data
 
-![plot](!plot.png)
+![plot](plot.png)
