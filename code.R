@@ -3,6 +3,9 @@ setwd("~/Developer/lego-data")
 library(ggplot2)
 library(gridExtra)
 library(ggthemes)
+library(png)
+library(grid)
+library(cowplot)
 
 #==========================================================
 # Initialize data
@@ -204,8 +207,8 @@ plot_one = function (input_theme_name) {
     aes(
       ymax = ymax,
       ymin = ymin,
-      xmax = 4,
-      xmin = 3,
+      xmax = 5,
+      xmin = 3.5,
       fill = factor(color_name, levels = color_name)
     )
   ) +
@@ -227,7 +230,7 @@ plot_one = function (input_theme_name) {
       theta = "y"
     ) +
     xlim(
-      c(2, 4)
+      c(2, 5)
     ) +
     labs(
       title = input_theme_name
@@ -241,11 +244,17 @@ plot_one = function (input_theme_name) {
       axis.title = element_blank(),
       axis.text = element_blank(),
       panel.grid.major = element_blank(), 
-      panel.grid.minor = element_blank()
+      panel.grid.minor = element_blank(),
+      plot.background = element_blank()
     )
 }
 
-grid.arrange(
+plot_one(top_themes[1])
+
+logo_img = readPNG("lego.png")
+logo_grob = rasterGrob(logo_img, width = unit(1, "in"))
+
+g = grid.arrange(
   plot_one(top_themes[1]), 
   plot_one(top_themes[2]), 
   plot_one(top_themes[3]),
@@ -272,8 +281,12 @@ grid.arrange(
   plot_one(top_themes[24]),
   plot_one(top_themes[25]),
   ncol = 5, 
-  nrow = 5
+  nrow = 5,
+  top = logo_grob
 )
+
+ggdrawing = ggdraw(g) + theme(plot.background = element_rect(fill="aliceblue", color = NA))
+plot(ggdrawing)
 
 #--------------------------------------
 # Treemap by parts, top themes
