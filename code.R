@@ -288,6 +288,16 @@ g = grid.arrange(
 ggdrawing = ggdraw(g) + theme(plot.background = element_rect(fill="aliceblue", color = NA))
 plot(ggdrawing)
 
+ggsave(
+  paste("plot.png", sep = ""),
+  path = "~/Developer/lego-data",
+  dpi = 320,
+  width = 10,
+  height = 10,
+  device = "png",
+  units = "in"
+)
+
 #--------------------------------------
 # Treemap by parts, top themes
 #--------------------------------------
