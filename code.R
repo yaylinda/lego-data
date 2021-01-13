@@ -33,6 +33,13 @@ sets$theme_name[which(sets$theme_name == "Universal Building Set")] = "UBS"
 sets$theme_name[which(sets$theme_name == "Educational and Dacta")] = "E&D"
 sets$theme_name[which(sets$theme_name == "Super Heroes Marvel")] = "Marvel"
 sets$theme_name[which(sets$theme_name == "Super Heroes DC")] = "DC"
+sets$theme_name[which(sets$theme_name == "Collectible Minifigures")] = "Minifigures"
+sets$theme_name[which(sets$theme_name == "Legoland Parks")] = "Legoland"
+
+sets$theme_name[which(sets$theme_name == "DC Super Hero Girls")] = "DC"
+sets$theme_name[which(sets$theme_name == "Disney Princess")] = "Disney"
+sets$theme_name[which(sets$theme_name == "Disney's Mickey Mouse")] = "Disney"
+sets$theme_name[which(sets$theme_name == "Super Heroes DC")] = "DC"
 
 # Some aggregations
 sets$count = 1
@@ -182,10 +189,40 @@ colnames(agg_theme_color_parts_count) = c(
 #   agg_theme_color_parts_count$theme_name %in% top_themes
 # )
 
+
+#--------------------------------------
+# Determine which themes to plot
+#--------------------------------------
+
+parent_themes = subset(themes, is.na(themes$parent_id))
+large_themes = subset(num_sets_for_theme, num_sets_for_theme$x >= 50)
+large_themes = large_themes[order(large_themes$theme_name), ]
+large_themes = large_themes[!large_themes$theme_name == "4 Juniors", ]
+large_themes = large_themes[!large_themes$theme_name == "Adventurers", ]
+large_themes = large_themes[!large_themes$theme_name == "Belville", ]
+large_themes = large_themes[!large_themes$theme_name == "Books", ]
+large_themes = large_themes[!large_themes$theme_name == "Bulk Bricks", ]
+large_themes = large_themes[!large_themes$theme_name == "Clikits", ]
+large_themes = large_themes[!large_themes$theme_name == "Dimensions", ]
+large_themes = large_themes[!large_themes$theme_name == "Fabuland", ]
+large_themes = large_themes[!large_themes$theme_name == "Freestyle", ]
+large_themes = large_themes[!large_themes$theme_name == "Hero Factory", ]
+large_themes = large_themes[!large_themes$theme_name == "Juniors", ]
+large_themes = large_themes[!large_themes$theme_name == "Mixels", ]
+large_themes = large_themes[!large_themes$theme_name == "Other", ]
+large_themes = large_themes[!large_themes$theme_name == "Nexo Knights", ]
+large_themes = large_themes[!large_themes$theme_name == "Promotional", ]
+large_themes = large_themes[!large_themes$theme_name == "Racers", ]
+large_themes = large_themes[!large_themes$theme_name == "Scala", ]
+large_themes = large_themes[!large_themes$theme_name == "Service Packs", ]
+large_themes = large_themes[!large_themes$theme_name == "Seasonal", ]
+large_themes = large_themes[!large_themes$theme_name == "E&D", ]
+large_themes = large_themes[!large_themes$theme_name == "UBS", ]
+large_themes = large_themes[!large_themes$theme_name == "Sports", ]
+
 #--------------------------------------
 # Plot pie chart with colors for each theme
 #--------------------------------------
-
 plot_one = function (input_theme_name) {
   
   num_sets_in_theme = subset(
@@ -249,43 +286,20 @@ plot_one = function (input_theme_name) {
     )
 }
 
-plot_one(top_themes[1])
-
 logo_img = readPNG("lego.png")
 logo_grob = rasterGrob(logo_img, width = unit(1, "in"))
 
-g = grid.arrange(
-  plot_one(top_themes[1]), 
-  plot_one(top_themes[2]), 
-  plot_one(top_themes[3]),
-  plot_one(top_themes[4]),
-  plot_one(top_themes[5]), 
-  plot_one(top_themes[6]),
-  plot_one(top_themes[7]), 
-  plot_one(top_themes[8]), 
-  plot_one(top_themes[9]),
-  plot_one(top_themes[10]), 
-  plot_one(top_themes[11]), 
-  plot_one(top_themes[12]),
-  plot_one(top_themes[13]),
-  plot_one(top_themes[14]),
-  plot_one(top_themes[15]),
-  plot_one(top_themes[16]),
-  plot_one(top_themes[17]),
-  plot_one(top_themes[18]),
-  plot_one(top_themes[19]),
-  plot_one(top_themes[20]),
-  plot_one(top_themes[21]),
-  plot_one(top_themes[22]),
-  plot_one(top_themes[23]),
-  plot_one(top_themes[24]),
-  plot_one(top_themes[25]),
+plots = lapply(large_themes$theme_name, plot_one)
+
+grid_plot = grid.arrange(
+  grobs = plots,
   ncol = 5, 
-  nrow = 5,
+  nrow = 6,
   top = logo_grob
 )
 
-ggdrawing = ggdraw(g) + theme(plot.background = element_rect(fill="aliceblue", color = NA))
+ggdrawing = ggdraw(grid_plot) + theme(plot.background = element_rect(fill="aliceblue", color = NA))
+
 plot(ggdrawing)
 
 ggsave(
@@ -293,7 +307,7 @@ ggsave(
   path = "~/Developer/lego-data",
   dpi = 320,
   width = 10,
-  height = 10,
+  height = 12,
   device = "png",
   units = "in"
 )
