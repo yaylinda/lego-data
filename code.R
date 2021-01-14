@@ -15,6 +15,7 @@ themes = read.csv("themes.csv")
 inventories = read.csv("inventories.csv")
 inventory_parts = read.csv("inventory_parts.csv")
 parts = read.csv("parts.csv")
+part_categories = read.csv("part_categories.csv")
 colors = read.csv("colors.csv")
 elements = read.csv("elements.csv")
 
@@ -184,6 +185,20 @@ colnames(agg_theme_color_parts_count) = c(
   "count"
 )
 
+agg_year_color_parts_count = aggregate(
+  set_inv_parts_color$quantity,
+  by = list(
+    set_inv_parts_color$year,
+    set_inv_parts_color$rgb
+  ),
+  sum
+)
+colnames(agg_year_color_parts_count) = c(
+  "year",
+  "rgb",
+  "count"
+)
+
 # top_agg_theme_color_parts_count = subset(
 #   agg_theme_color_parts_count,
 #   agg_theme_color_parts_count$theme_name %in% top_themes
@@ -223,7 +238,7 @@ large_themes = large_themes[!large_themes$theme_name == "Sports", ]
 #--------------------------------------
 # Plot pie chart with colors for each theme
 #--------------------------------------
-plot_one = function (input_theme_name) {
+plot_one_by_theme = function (input_theme_name) {
   
   num_sets_in_theme = subset(
     num_sets_for_theme,
@@ -289,7 +304,7 @@ plot_one = function (input_theme_name) {
 logo_img = readPNG("lego.png")
 logo_grob = rasterGrob(logo_img, width = unit(1, "in"))
 
-plots = lapply(large_themes$theme_name, plot_one)
+plots = lapply(large_themes$theme_name, plot_one_by_theme)
 
 grid_plot = grid.arrange(
   grobs = plots,
@@ -303,11 +318,181 @@ ggdrawing = ggdraw(grid_plot) + theme(plot.background = element_rect(fill="alice
 plot(ggdrawing)
 
 ggsave(
-  paste("plot.png", sep = ""),
+  paste("color_by_theme.png", sep = ""),
   path = "~/Developer/lego-data",
   dpi = 320,
   width = 10,
   height = 12,
+  device = "png",
+  units = "in"
+)
+
+
+#--------------------------------------
+# Plot pie chart colors for each year
+#--------------------------------------
+
+plot_one_by_year = function (year_input) {
+  
+  num_sets_in_year = subset(
+    num_sets_for_year,
+    num_sets_for_year$year == year_input
+  )$x
+  
+  temp = subset(
+    agg_year_color_parts_count,
+    agg_year_color_parts_count$year == year_input
+  )
+  
+  if (nrow(temp) > 0) {
+    temp = temp[order(-temp$count), ]
+    temp$ymax = cumsum(temp$count)
+    temp$ymin = c(0, head(temp$ymax, n=-1))
+    
+    ggplot(
+      data = temp,
+      aes(
+        ymax = ymax,
+        ymin = ymin,
+        xmax = 5,
+        xmin = 3.5,
+        fill = factor(rgb, levels = rgb)
+      )
+    ) +
+      scale_fill_manual(
+        values = paste0("#", temp$rgb)
+      ) +
+      geom_rect(
+        
+      ) +
+      annotate(
+        "text",
+        x = 2,
+        y = 2,
+        label = paste("Sets:\n", num_sets_in_year, sep = ""),
+        family = "mono",
+        size = 3
+      ) +
+      coord_polar(
+        theta = "y"
+      ) +
+      xlim(
+        c(2, 5)
+      ) +
+      labs(
+        title = year_input
+      ) +
+      theme_economist() +
+      theme(
+        text = element_text(family = "mono"), 
+        plot.title = element_text(size = rel(1.25), hjust = 0.5, margin = margin(t = 0)),
+        legend.position = "none",
+        axis.line = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        plot.background = element_blank()
+      )
+  } else {
+    num_sets_in_year = 0
+    ggplot(
+      data = temp,
+      aes(
+        ymax = 0,
+        ymin = 0,
+        xmax = 5,
+        xmin = 3.5
+      )
+    ) +
+      geom_rect(
+        
+      ) +
+      annotate(
+        "text",
+        x = 2,
+        y = 2,
+        label = paste("Sets:\n", num_sets_in_year, sep = ""),
+        family = "mono",
+        size = 3
+      ) +
+      coord_polar(
+        theta = "y"
+      ) +
+      xlim(
+        c(2, 5)
+      ) +
+      labs(
+        title = year_input
+      ) +
+      theme_economist() +
+      theme(
+        text = element_text(family = "mono"), 
+        plot.title = element_text(size = rel(1.25), hjust = 0.5, margin = margin(t = 0)),
+        legend.position = "none",
+        axis.line = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        plot.background = element_blank()
+      )
+  }
+}
+
+plots = lapply(min(num_sets_for_year$year):max(num_sets_for_year$year), plot_one_by_year)
+
+# grid_plot = grid.arrange(
+#   grobs = plots,
+#   ncol = 7, 
+#   top = logo_grob
+# )
+
+# grid_plot = grid.arrange(
+#   grobs = plots,
+#   top = logo_grob,
+#   layout_matrix = rbind(
+#     c(1, NA, NA, NA, NA, NA, NA, NA, NA, NA), # 40's
+#     c(2, NA, NA, 3,  4,  5,  6,  7,  8,  9 ), # 50's
+#     10 : (10  + 9), # 60's
+#     20 : (20  + 9), # 70's
+#     30 : (30  + 9), # 80's
+#     40 : (40  + 9), # 90's
+#     50 : (50  + 9), # 00's
+#     60 : (60  + 9), # 10's
+#     c(70, 71, NA, NA, NA, NA, NA, NA, NA, NA) # 20's
+#   )
+# )
+
+logo_img = readPNG("lego.png")
+logo_grob = rasterGrob(logo_img, width = unit(2, "in"))
+
+grid_plot = grid.arrange(
+  grobs = plots,
+  top = logo_grob,
+  layout_matrix = rbind(
+    c(NA, NA, NA, NA, NA, NA, NA, NA, NA, 1), # 40's
+    2  : (2   + 9), # 50's
+    12 : (12  + 9), # 60's
+    22 : (22  + 9), # 70's
+    32 : (32  + 9), # 80's
+    42 : (42  + 9), # 90's
+    52 : (52  + 9), # 00's
+    62 : (62  + 9), # 10's
+    c(72, 73, NA, NA, NA, NA, NA, NA, NA, NA) # 20's
+  )
+)
+
+ggdrawing = ggdraw(grid_plot) + theme(plot.background = element_rect(fill="aliceblue", color = NA))
+
+plot(ggdrawing)
+
+ggsave(
+  paste("color_by_year.png", sep = ""),
+  path = "~/Developer/lego-data",
+  dpi = 320,
+  width = 18,
+  height = 20,
   device = "png",
   units = "in"
 )
