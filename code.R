@@ -87,7 +87,7 @@ num_sets_for_year = aggregate(
   sum
 )
 
-num_sets_for_year = aggregate(
+num_parts_for_year = aggregate(
   sets$num_parts,
   by = list(
     year = sets$year
@@ -159,12 +159,6 @@ set_inv_parts_color = merge(
   by.y = "set_num"
 )
 
-# colors, parts, count for top themes
-# top_theme_inv_parts_color = subset(
-#   set_inv_parts_color, 
-#   set_inv_parts_color$theme_name %in% top_themes
-# )
-
 #==========================================================
 # PLOT
 #==========================================================
@@ -202,12 +196,6 @@ colnames(agg_year_color_parts_count) = c(
   "rgb",
   "count"
 )
-
-# top_agg_theme_color_parts_count = subset(
-#   agg_theme_color_parts_count,
-#   agg_theme_color_parts_count$theme_name %in% top_themes
-# )
-
 
 #--------------------------------------
 # Determine which themes to plot
@@ -445,28 +433,6 @@ plot_one_by_year = function (year_input) {
 }
 
 plots = lapply(min(num_sets_for_year$year):max(num_sets_for_year$year), plot_one_by_year)
-
-# grid_plot = grid.arrange(
-#   grobs = plots,
-#   ncol = 7, 
-#   top = logo_grob
-# )
-
-# grid_plot = grid.arrange(
-#   grobs = plots,
-#   top = logo_grob,
-#   layout_matrix = rbind(
-#     c(1, NA, NA, NA, NA, NA, NA, NA, NA, NA), # 40's
-#     c(2, NA, NA, 3,  4,  5,  6,  7,  8,  9 ), # 50's
-#     10 : (10  + 9), # 60's
-#     20 : (20  + 9), # 70's
-#     30 : (30  + 9), # 80's
-#     40 : (40  + 9), # 90's
-#     50 : (50  + 9), # 00's
-#     60 : (60  + 9), # 10's
-#     c(70, 71, NA, NA, NA, NA, NA, NA, NA, NA) # 20's
-#   )
-# )
 
 logo_img = readPNG("lego.png")
 logo_grob = rasterGrob(logo_img, width = unit(2, "in"))
