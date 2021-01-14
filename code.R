@@ -169,6 +169,10 @@ set_inv_parts_color = merge(
 # PLOT
 #==========================================================
 
+#--------------------------------------
+# Aggregate parts and colors by themes and years
+#--------------------------------------
+
 agg_theme_color_parts_count = aggregate(
   set_inv_parts_color$quantity,
   by = list(
@@ -236,7 +240,7 @@ large_themes = large_themes[!large_themes$theme_name == "UBS", ]
 large_themes = large_themes[!large_themes$theme_name == "Sports", ]
 
 #--------------------------------------
-# Plot pie chart with colors for each theme
+# Plot pie chart of colors for each theme
 #--------------------------------------
 plot_one_by_theme = function (input_theme_name) {
   
@@ -329,7 +333,7 @@ ggsave(
 
 
 #--------------------------------------
-# Plot pie chart colors for each year
+# Plot pie chart of colors for each year
 #--------------------------------------
 
 plot_one_by_year = function (year_input) {
@@ -412,9 +416,9 @@ plot_one_by_year = function (year_input) {
         "text",
         x = 2,
         y = 2,
-        label = paste("Sets:\n", num_sets_in_year, sep = ""),
+        label = paste("Sets:\n", format(num_sets_in_year, scientific = F, big.mark = ","), sep = ""),
         family = "mono",
-        size = 3
+        size = 2.95
       ) +
       coord_polar(
         theta = "y"
@@ -491,7 +495,7 @@ ggsave(
   paste("color_by_year.png", sep = ""),
   path = "~/Developer/lego-data",
   dpi = 320,
-  width = 18,
+  width = 20,
   height = 20,
   device = "png",
   units = "in"
