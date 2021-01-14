@@ -1,3 +1,5 @@
 # lego-data
 
-![plot](plot.png)
+![plot](color_by_theme.png)
+
+![plot](color_by_year.png)
